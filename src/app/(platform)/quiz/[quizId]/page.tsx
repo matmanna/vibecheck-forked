@@ -2,20 +2,52 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { orpc } from "@/lib/orpc";
 import { ORPCError } from "@orpc/client";
 import { useQuery } from "@tanstack/react-query";
-import { Pin, RotateCw } from "lucide-react";
-import { useRef } from "react";
+import { ChevronLeft, ChevronRight, Pin, RotateCw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const FormSchema = z.object({
+  questions: z.array(
+    z.object({
+      answer: z.enum(["yes", "no", "neutral", "-"], {
+        message: "You must select an answer",
+      }),
+    })
+  ),
+});
 
 export default function QuizPage() {
   const scrollBox = useRef<HTMLDivElement>(null);
+  const [answers, setAnswers] = useState<(boolean | null)[] | null>(null);
+  const [currentScrollPos, setCurrentScrollPos] = useState(-1);
+  const [scrollBoxWidth, setScrollBoxWidth] = useState(400);
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+  });
+
+  function onSubmit(values: z.infer<typeof FormSchema>) {
+    console.log("on");
+    console.log(values);
+  }
 
   const { isLoading, data: quizData } = useQuery(
     orpc.quiz.find.queryOptions({
@@ -26,47 +58,181 @@ export default function QuizPage() {
     })
   );
 
+  if (!isLoading && !answers) {
+    setAnswers(quizData?.quizQuestions.map(() => null) || []);
+  }
+
+  useEffect(() => {
+    const updatePosition = () => {
+      setScrollBoxWidth(scrollBox.current?.clientWidth || 0);
+      // setCurrentScrollAmount(scrollBox.current?.scrollLeft || 0);
+      if (!scrollBox.current) {
+        setCurrentScrollPos(0);
+      } else {
+        if (scrollBox.current.scrollLeft < scrollBox.current.clientWidth / 2) {
+          setCurrentScrollPos(-1);
+        } else if (
+          scrollBox.current.scrollWidth -
+            scrollBox.current.clientWidth -
+            scrollBox.current.scrollLeft <
+          scrollBox.current.clientWidth / 2
+        ) {
+          setCurrentScrollPos(1);
+        } else {
+          setCurrentScrollPos(0);
+        }
+      }
+    };
+
+    const scrollBoxNode = scrollBox.current;
+    scrollBoxNode?.addEventListener("scroll", updatePosition);
+
+    return () => {
+      scrollBoxNode?.removeEventListener("scroll", updatePosition);
+    };
+  }, []);
+
   return (
-    <div ref={scrollBox} className="h-screen scroll-smooth snap-x snap-mandatory py-6 flex flex-row gap-[10vw] md:gap-[calc(25%-111px)] items-center w-full overflow-y-hidden overflow-x-scroll h-full w-full">
-      <div className="snap-start h-0 w-0"></div>
-      <div className="h-0 w-0"></div>
-
-      <Card className="min-w-md flex-grow-1">
-        <CardHeader>
-          {isLoading ? <RotateCw className="animate-spin" /> : null}
-          <div className="flex flex-row items-center gap-2">
-            <Pin className="w-5 h-5" />
-            <CardTitle>{quizData?.title}</CardTitle>
+    <>
+      <div className="py-6 relative h-screen h-full w-full flex flex-row">
+        <div
+          ref={scrollBox}
+          className="scroll-smooth snap-x snap-mandatory flex flex-row items-center overflow-y-hidden overflow-x-scroll"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          <div className="w-full flex-shrink-0 w-[100%] snap-start snap-center flex items-center justify-center p-4">
+            <Card className="max-w-md flex-grow-1">
+              {isLoading ? (
+                <CardHeader className="justify-center items-center">
+                  <RotateCw className="animate-spin" />
+                </CardHeader>
+              ) : null}
+              {!isLoading ? (
+                <>
+                  <CardHeader>
+                    <div className="flex flex-row items-center gap-2">
+                      <Pin className="w-5 h-5" />
+                      <CardTitle>{quizData?.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p>{quizData?.description}</p>
+                    <div className="flex flex-row items-center justify-end mt-4">
+                      <Button
+                        onClick={() => {
+                          scrollBox.current!.scrollBy({
+                            left: scrollBoxWidth,
+                            behavior: "smooth",
+                          });
+                        }}
+                      >
+                        Take Quiz
+                      </Button>
+                    </div>
+                  </CardContent>
+                </>
+              ) : null}
+            </Card>
           </div>
-        </CardHeader>
-        <CardContent>
-          <p>{quizData?.description}</p>
-          <div className="flex flex-row items-center justify-end mt-4">
-            <Button onClick={() => {
-                scrollBox.current!.scrollBy({ left: 400, behavior: "smooth" });
-              }}
-            >Take Quiz</Button>
-          </div>
-        </CardContent>
-      </Card>
-                <div className="snap-start h-1 w-0"></div>
-
-
-      {quizData?.quizQuestions.map((question, questionIndex) => (
-        <>
-          <div className={`${questionIndex > 0 ? "snap-start" : ""} h-1 w-0`}></div>
-
-          <Card key={question.id} className="min-w-md flex-grow-1">
-            <CardHeader>
-              <CardTitle>Question {questionIndex + 1}:</CardTitle>
-              <CardDescription>{question.questionText}</CardDescription>
-            </CardHeader>
-            <CardContent></CardContent>
-          </Card>
-          <div className="h-0 w-0"></div>
-        </>
-      ))}
-      <div className="h-0 w-0"></div>
-    </div>
+          <Form {...form}>
+            {quizData?.quizQuestions.map((question, questionIndex) => (
+              <>
+                <div
+                  key={question.id + "div2"}
+                  className={
+                    "flex-shrink-0 w-[100%] snap-center flex flex-col items-center justify-center p-4 gap-4"
+                  }
+                >
+                  <Card key={question.id} className="min-w-md flex-grow-1">
+                    <CardHeader>
+                      <CardTitle>Question {questionIndex + 1}:</CardTitle>
+                      <CardDescription>{question.questionText}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <FormField
+                        control={form.control}
+                        name={`questions.${questionIndex}.answer`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={""}
+                            >
+                              <FormItem className="flex items-center gap-3">
+                                <FormControl>
+                                  <RadioGroupItem value="yes" />
+                                </FormControl>
+                                <FormLabel>Yes</FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center gap-3">
+                                <FormControl>
+                                  <RadioGroupItem value="no" />
+                                </FormControl>
+                                <FormLabel>No</FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center gap-3">
+                                <FormControl>
+                                  <RadioGroupItem value="neutral" />
+                                </FormControl>
+                                <FormLabel>Neutral</FormLabel>
+                              </FormItem>
+                            </RadioGroup>
+                          </FormControl>
+                        )}
+                      ></FormField>
+                    </CardContent>
+                  </Card>
+                  {questionIndex ===
+                    (quizData?.quizQuestions.length || 0) - 1 && (
+                    <div className="min-w-md flex items-end flex-col">
+                      <Button
+                        onClick={() => {
+                          console.log("submit");
+                          form.handleSubmit(onSubmit)();
+                        }}
+                      >
+                        Submit
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ))}
+          </Form>
+        </div>
+        {currentScrollPos > -1 && (
+          <Button
+            onClick={() => {
+              // setCurrentScrollAmount(scrollBox.current?.scrollLeft || 0);
+              scrollBox.current!.scrollBy({
+                left: -scrollBoxWidth,
+                behavior: "smooth",
+              });
+              // setCurrentScrollAmount(currentScrollAmount - 400);
+            }}
+            size="icon"
+            className="top-[45%] size-10 absolute left-2"
+          >
+            <ChevronLeft />
+          </Button>
+        )}
+        {currentScrollPos == 0 && (
+          <Button
+            onClick={() => {
+              // setCurrentScrollAmount(scrollBox.current?.scrollLeft || 0);
+              scrollBox.current!.scrollBy({
+                left: scrollBoxWidth,
+                behavior: "smooth",
+              });
+              // setCurrentScrollAmount(currentScrollAmount + 400);
+            }}
+            size="icon"
+            className="top-[45%] size-10 absolute right-2"
+          >
+            <ChevronRight />
+          </Button>
+        )}
+      </div>
+    </>
   );
 }
