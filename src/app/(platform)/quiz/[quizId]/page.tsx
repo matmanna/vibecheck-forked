@@ -23,6 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useParams, useRouter } from "next/navigation";
 
 const FormSchema = z.object({
   questions: z.array(
@@ -34,24 +35,41 @@ const FormSchema = z.object({
   ),
 });
 
+type ParamsType = {
+  quizId: string;
+};
+
 export default function QuizPage() {
+  const quizId = parseInt(useParams<ParamsType>().quizId);
+
   const scrollBox = useRef<HTMLDivElement>(null);
   const [answers, setAnswers] = useState<(boolean | null)[] | null>(null);
   const [currentScrollPos, setCurrentScrollPos] = useState(-1);
   const [scrollBoxWidth, setScrollBoxWidth] = useState(400);
 
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
 
-  function onSubmit(values: z.infer<typeof FormSchema>) {
+  async function onSubmit(values: z.infer<typeof FormSchema>) {
     console.log("on");
     console.log(values);
+    try {
+      const submissionId = await orpc.quiz.submitResponse.call({
+        quizId: quizData?.id || 0,
+        answers: values.questions.map((q) => q.answer),
+      });
+      router.push(`/results/${submissionId}`);
+    } catch (error) {
+      console.error("Error fetching quiz:", error);
+    }
   }
 
   const { isLoading, data: quizData } = useQuery(
     orpc.quiz.find.queryOptions({
-      input: { id: 1 },
+      input: { id: quizId },
       onError: (error: ORPCError<string, unknown>) => {
         console.error("Error fetching quiz:", error);
       },
@@ -97,17 +115,17 @@ export default function QuizPage() {
       <div className="py-6 relative h-screen h-full w-full flex flex-row">
         <div
           ref={scrollBox}
-          className="scroll-smooth snap-x snap-mandatory flex flex-row items-center overflow-y-hidden overflow-x-scroll"
+          className="w-full scroll-smooth snap-x snap-mandatory flex flex-row items-center overflow-y-hidden overflow-x-scroll"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           <div className="w-full flex-shrink-0 w-[100%] snap-start snap-center flex items-center justify-center p-4">
-            <Card className="max-w-md flex-grow-1">
-              {isLoading ? (
-                <CardHeader className="justify-center items-center">
-                  <RotateCw className="animate-spin" />
-                </CardHeader>
-              ) : null}
-              {!isLoading ? (
+            {isLoading && (
+              <div className="flex flex-row max-w-md flex-grow-1 justify-center w-full">
+                <RotateCw className="animate-spin" />
+              </div>
+            )}
+            {!isLoading && (
+              <Card className="max-w-md flex-grow-1">
                 <>
                   <CardHeader>
                     <div className="flex flex-row items-center gap-2">
@@ -131,8 +149,8 @@ export default function QuizPage() {
                     </div>
                   </CardContent>
                 </>
-              ) : null}
-            </Card>
+              </Card>
+            )}
           </div>
           <Form {...form}>
             {quizData?.quizQuestions.map((question, questionIndex) => (
