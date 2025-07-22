@@ -126,95 +126,128 @@ export default function QuizPage() {
             )}
             {!isLoading && (
               <Card className="max-w-md flex-grow-1">
-                <>
-                  <CardHeader>
-                    <div className="flex flex-row items-center gap-2">
-                      <Pin className="w-5 h-5" />
-                      <CardTitle>{quizData?.title}</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p>{quizData?.description}</p>
-                    <div className="flex flex-row items-center justify-end mt-4">
-                      <Button
-                        onClick={() => {
-                          scrollBox.current!.scrollBy({
-                            left: scrollBoxWidth,
-                            behavior: "smooth",
-                          });
-                        }}
-                      >
-                        Take Quiz
-                      </Button>
-                    </div>
-                  </CardContent>
-                </>
+                <CardHeader>
+                  <div className="flex flex-row items-center gap-2">
+                    <Pin className="w-5 h-5" />
+                    <CardTitle>{quizData?.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p>{quizData?.description}</p>
+                  <div className="flex flex-row items-center justify-end mt-4">
+                    <Button
+                      onClick={() => {
+                        scrollBox.current!.scrollBy({
+                          left: scrollBoxWidth,
+                          behavior: "smooth",
+                        });
+                      }}
+                    >
+                      Take Quiz
+                    </Button>
+                  </div>
+                </CardContent>
               </Card>
             )}
           </div>
           <Form {...form}>
             {quizData?.quizQuestions.map((question, questionIndex) => (
-              <>
-                <div
-                  key={question.id + "div2"}
-                  className={
-                    "flex-shrink-0 w-[100%] snap-center flex flex-col items-center justify-center p-4 gap-4"
-                  }
+              <div
+                key={question.id + "-div"}
+                className={
+                  "flex-shrink-0 w-[100%] snap-center flex flex-col items-center justify-center p-4 gap-4"
+                }
+              >
+                <Card
+                  key={question.id + "-card"}
+                  className="min-w-md flex-grow-1"
                 >
-                  <Card key={question.id} className="min-w-md flex-grow-1">
-                    <CardHeader>
-                      <CardTitle>Question {questionIndex + 1}:</CardTitle>
-                      <CardDescription>{question.questionText}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <FormField
-                        control={form.control}
-                        name={`questions.${questionIndex}.answer`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={""}
+                  <CardHeader key={question.id + "-header"}>
+                    <CardTitle key={question.id + "-title"}>
+                      Question {questionIndex + 1}:
+                    </CardTitle>
+                    <CardDescription key={question.id + "description"}>
+                      {question.questionText}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent key={question.id + "-content"}>
+                    <FormField
+                      key={question.id + "-formfield"}
+                      control={form.control}
+                      name={`questions.${questionIndex}.answer`}
+                      render={({ field }) => (
+                        <FormControl key={question.id + "-control"}>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={""}
+                            key={question.id + "-radiogroup"}
+                          >
+                            <FormItem
+                              className="flex items-center gap-3"
+                              key={question.id + "-formitem1"}
                             >
-                              <FormItem className="flex items-center gap-3">
-                                <FormControl>
-                                  <RadioGroupItem value="yes" />
-                                </FormControl>
-                                <FormLabel>Yes</FormLabel>
-                              </FormItem>
-                              <FormItem className="flex items-center gap-3">
-                                <FormControl>
-                                  <RadioGroupItem value="no" />
-                                </FormControl>
-                                <FormLabel>No</FormLabel>
-                              </FormItem>
-                              <FormItem className="flex items-center gap-3">
-                                <FormControl>
-                                  <RadioGroupItem value="neutral" />
-                                </FormControl>
-                                <FormLabel>Neutral</FormLabel>
-                              </FormItem>
-                            </RadioGroup>
-                          </FormControl>
-                        )}
-                      ></FormField>
-                    </CardContent>
-                  </Card>
-                  {questionIndex ===
-                    (quizData?.quizQuestions.length || 0) - 1 && (
-                    <div className="min-w-md flex items-end flex-col">
-                      <Button
-                        onClick={() => {
-                          console.log("submit");
-                          form.handleSubmit(onSubmit)();
-                        }}
-                      >
-                        Submit
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </>
+                              <FormControl key={question.id + "-control2"}>
+                                <RadioGroupItem
+                                  value="yes"
+                                  key={question.id + "-radiogroupitem1"}
+                                />
+                              </FormControl>
+                              <FormLabel key={question.id + "-label1"}>
+                                Yes
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem
+                              className="flex items-center gap-3"
+                              key={question.id + "-formitem2"}
+                            >
+                              <FormControl key={question.id + "-control3"}>
+                                <RadioGroupItem
+                                  value="no"
+                                  key={question.id + "-radiogroupitem2"}
+                                />
+                              </FormControl>
+                              <FormLabel key={question.id + "-label2"}>
+                                No
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem
+                              className="flex items-center gap-3"
+                              key={question.id + "-formitem3"}
+                            >
+                              <FormControl key={question.id + "-control4"}>
+                                <RadioGroupItem
+                                  value="neutral"
+                                  key={question.id + "-radiogroupitem3"}
+                                />
+                              </FormControl>
+                              <FormLabel key={question.id + "-label3"}>
+                                Neutral
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                      )}
+                    ></FormField>
+                  </CardContent>
+                </Card>
+                {questionIndex ===
+                  (quizData?.quizQuestions.length || 0) - 1 && (
+                  <div
+                    className="min-w-md flex items-end flex-col"
+                    key={question.id + "-submitdiv"}
+                  >
+                    <Button
+                      onClick={() => {
+                        console.log("submit");
+                        form.handleSubmit(onSubmit)();
+                      }}
+                      key={question.id + "-submitbtn"}
+                    >
+                      Submit
+                    </Button>
+                  </div>
+                )}
+              </div>
             ))}
           </Form>
         </div>

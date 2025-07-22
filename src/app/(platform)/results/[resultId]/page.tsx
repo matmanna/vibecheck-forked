@@ -74,7 +74,7 @@ export default function ResultsPage() {
                       .map((item) => item.name)
                       .join(", ")}
                   </h1>
-                  <div className="gap-2">
+                  <div className="gap-2 flex flex-col">
                     {submissionData?.quiz.quizEventualities
                       .filter((item) => winningEventualities.includes(item.id))
                       .map((item) => {
