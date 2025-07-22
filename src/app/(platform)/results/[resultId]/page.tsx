@@ -91,10 +91,10 @@ export default function ResultsPage() {
                   {submissionData && (
                     <div className="mt-6">
                       <PointsChart
-                        eventualityNames={submissionData?.quiz.quizEventualities.map(
+                        eventualityNames={submissionData?.quiz.quizEventualities.toSorted((a, b) => submissionData?.results[submissionData?.quiz.quizEventualities.indexOf(b)] - submissionData?.results[submissionData?.quiz.quizEventualities.indexOf(a)]).map(
                           (item) => item.name
                         )}
-                        results={submissionData?.results}
+                        results={submissionData?.results.toSorted((a, b) => b - a)}
                       ></PointsChart>
                     </div>
                   )}
