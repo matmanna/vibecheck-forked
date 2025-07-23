@@ -91,10 +91,24 @@ export default function ResultsPage() {
                   {submissionData && (
                     <div className="mt-6">
                       <PointsChart
-                        eventualityNames={submissionData?.quiz.quizEventualities.toSorted((a, b) => submissionData?.results[submissionData?.quiz.quizEventualities.indexOf(b)] - submissionData?.results[submissionData?.quiz.quizEventualities.indexOf(a)]).map(
-                          (item) => item.name
+                        eventualityNames={submissionData?.quiz.quizEventualities
+                          .toSorted(
+                            (a, b) =>
+                              submissionData?.results[
+                                submissionData?.quiz.quizEventualities.indexOf(
+                                  b
+                                )
+                              ] -
+                              submissionData?.results[
+                                submissionData?.quiz.quizEventualities.indexOf(
+                                  a
+                                )
+                              ]
+                          )
+                          .map((item) => item.name)}
+                        results={submissionData?.results.toSorted(
+                          (a, b) => b - a
                         )}
-                        results={submissionData?.results.toSorted((a, b) => b - a)}
                       ></PointsChart>
                     </div>
                   )}
@@ -105,12 +119,14 @@ export default function ResultsPage() {
                         key={item.id + "-q"}
                         className="flex flex-row  gap-2"
                       >
-                        <p key={item.id + "-qt"}>{item.questionText}</p>
-                        <p className="text-gray-500" key={item.id + "-qa"}>
-                          {submissionData?.answers[idx]
-                            .charAt(0)
-                            .toUpperCase() +
-                            submissionData?.answers[idx].slice(1)}
+                        <p key={item.id + "-qt"}>
+                          {item.questionText}{" "}
+                          <span className="text-gray-500" key={item.id + "-qa"}>
+                            {submissionData?.answers[idx]
+                              .charAt(0)
+                              .toUpperCase() +
+                              submissionData?.answers[idx].slice(1)}
+                          </span>{" "}
                         </p>
                       </div>
                     );
