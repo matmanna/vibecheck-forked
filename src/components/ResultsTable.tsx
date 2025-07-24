@@ -53,14 +53,14 @@ export default function ResultsTable({
   return (
     <Table>
       <TableCaption>
-        Points given to each outcome based on your answers
+        Points given to each outcome based on your answers.<br></br>Positive points indicate the outcome is better given your answer.<br></br>Negative points indicate the outcome is worse given your answer.
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead>Q</TableHead>
-          <TableHead className="w-[100x]">A</TableHead>
+          <TableHead className="text-center">Question</TableHead>
+          <TableHead className="w-[100x] text-center">Answer</TableHead>
           {tableData.eventualities.map((item) => (
-            <TableHead key={`${item.id}-tablehead`}>{item.name}</TableHead>
+            <TableHead className="text-center" key={`${item.id}-tablehead`}>{item.name}</TableHead>
           ))}
         </TableRow>
       </TableHeader>
@@ -68,23 +68,22 @@ export default function ResultsTable({
         {tableData.questions.map((item, idx) => {
           return (
             <TableRow key={`q${idx}-row`}>
-              <TableCell className="font-medium">{item.featureName}</TableCell>
-              <TableCell className="font-medium">
+              <TableCell className="font-medium text-center">{item.featureName}</TableCell>
+              <TableCell className="font-medium text-center">
                 {answers[idx] == "neutral"
                   ? "-"
                   : answers[idx][0].toUpperCase()}
               </TableCell>
               {tableData.questions[idx].points.map((item2, idx2) => (
-                <TableCell key={`q${idx}-${idx2}-points`}>{item2}</TableCell>
+                <TableCell className="text-center" key={`q${idx}-${idx2}-points`}>{item2}</TableCell>
               ))}
             </TableRow>
           );
         })}
         <TableRow key={`total-row`}>
-          <TableCell className="font-medium"></TableCell>
-          <TableCell className="font-medium text-right">Total:</TableCell>
+          <TableCell colSpan={2} className="font-medium text-right">Total:</TableCell>
           {results.map((item2, idx2) => (
-            <TableCell key={`totalcell-${idx2}`}>{results[idx2]}</TableCell>
+            <TableCell className="text-center" key={`totalcell-${idx2}`}>{results[idx2]}</TableCell>
           ))}
         </TableRow>
       </TableBody>
