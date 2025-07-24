@@ -11,7 +11,7 @@ export const QuizEventualitiesSchema = z.object({
   id: z.number().int(),
   quizId: z.number().int(),
   name: z.string(),
-  resultDescription: z.string().nullable(),
+  resultDescription: z.string(),
 });
 
 export const QuizFeatureEventualitySchema = z.object({
@@ -21,7 +21,7 @@ export const QuizFeatureEventualitySchema = z.object({
   eventualityId: z.number().int(),
   affirmativePoints: z.number().int(),
   negativePoints: z.number().int(),
-  type: z.string().nullable(),
+  impactType: z.string().nullable(),
 });
 
 export const QuizFeaturesSchema = z.object({

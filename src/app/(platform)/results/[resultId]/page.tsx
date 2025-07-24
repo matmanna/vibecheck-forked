@@ -89,7 +89,7 @@ export default function ResultsPage() {
               </Card>
               <Accordion type="single" collapsible className="w-full max-w-xl">
                 <AccordionItem value="item-1">
-                  <AccordionTrigger>More info</AccordionTrigger>
+                  <AccordionTrigger>More Info</AccordionTrigger>
                   <AccordionContent className="bg-[var(--background)]">
                     <div className="gap-2 flex flex-col">
                       {submissionData?.quiz.quizEventualities

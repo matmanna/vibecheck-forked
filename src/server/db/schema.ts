@@ -24,7 +24,7 @@ export const quizEventualitiesTable = pgTable("quiz_eventualities", {
     .notNull()
     .references(() => quizzesTable.id),
   name: varchar({ length: 255 }).notNull(),
-  resultDescription: varchar({ length: 400 }),
+  resultDescription: varchar({ length: 400 }).notNull(),
 });
 
 export const quizFeaturesTable = pgTable("quiz_features", {
@@ -49,7 +49,7 @@ export const quizFeatureEventualitiesTable = pgTable(
       .references(() => quizEventualitiesTable.id),
     affirmativePoints: integer().notNull(),
     negativePoints: integer().notNull(),
-    type: varchar({ length: 50 }),
+    impactType: varchar({ length: 50 }),
   }
 );
 
