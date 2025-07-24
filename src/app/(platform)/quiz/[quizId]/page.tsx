@@ -112,7 +112,7 @@ export default function QuizPage() {
 
   return (
     <>
-      <div className="py-6 relative h-screen h-full w-full flex flex-row">
+      <div className="p-8 pt-24 pb-10 relative h-screen h-full w-full flex flex-row">
         <div
           ref={scrollBox}
           className="w-full scroll-smooth snap-x snap-mandatory flex flex-row items-center overflow-y-hidden overflow-x-scroll"
@@ -262,7 +262,7 @@ export default function QuizPage() {
               // setCurrentScrollAmount(currentScrollAmount - 400);
             }}
             size="icon"
-            className="top-[45%] size-10 absolute left-2"
+            className="top-[50%] size-10 absolute left-2"
           >
             <ChevronLeft />
           </Button>
@@ -278,7 +278,7 @@ export default function QuizPage() {
               // setCurrentScrollAmount(currentScrollAmount + 400);
             }}
             size="icon"
-            className="top-[45%] size-10 absolute right-2"
+            className="top-[50%] size-10 absolute right-2"
           >
             <ChevronRight />
           </Button>

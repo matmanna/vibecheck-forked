@@ -20,8 +20,8 @@ export default function PlatformLayout({
 }) {
   return (
     <div className="min-h-screen flex-col flex items-center gap-8 w-full">
-      <div className="absolute top-0 block w-full max-w-[700px]">
-        <NavigationMenu className="z-5 mt-5 ml-5 mr-5 block max-w-full!">
+      <div className="absolute top-0 block px-5 items-center flex flex-col">
+        <NavigationMenu className="py-2 z-5 mt-5 block">
           <NavigationMenuList className="px-4! flex items-center justify-between">
             <NavigationMenuItem className="items-center flex flex-row w-full w-fit">
               <Image
