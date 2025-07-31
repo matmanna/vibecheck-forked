@@ -48,9 +48,9 @@ const OutcomesSchema = QuizEventualitiesSchema.omit({
   quizId: true,
 });
 
-const QuizImpactsSchema = z.array(
-  z.object({ affirmative: string(), negative: string() })
-);
+const QuizImpactsSchema = z.object({
+  outcomes: z.array(z.object({ affirmative: string(), negative: string() })),
+});
 
 const FormSchema = QuizSchema.omit({
   id: true,
@@ -206,14 +206,20 @@ export default function CreatePage() {
                                       i++
                                     ) {
                                       let newList: z.infer<
-                                        typeof QuizImpactsSchema
+                                        typeof QuizImpactsSchema.shape.outcomes
                                       > = [];
-                                      if (watchedImpacts[i].length > 0) {
-                                        newList = watchedImpacts[i].filter(
+                                      if (
+                                        watchedImpacts[i].outcomes.length > 0
+                                      ) {
+                                        newList = watchedImpacts[
+                                          i
+                                        ].outcomes.filter(
                                           (item3, idx3) => idx3 != idx
                                         );
                                       }
-                                      updateImpacts(i, newList);
+                                      updateImpacts(i, {
+                                        outcomes: newList,
+                                      });
                                     }
                                   }}
                                 ></Trash2>
@@ -229,9 +235,9 @@ export default function CreatePage() {
                             resultDescription: "",
                           });
                           for (let i = 0; i < fieldsQuestions.length; i++) {
-                            const newList = watchedImpacts[i];
+                            const newList = watchedImpacts[i].outcomes ?? [];
                             newList.push({ affirmative: "", negative: "" });
-                            updateImpacts(i, newList);
+                            updateImpacts(i, { outcomes: newList });
                           }
                           console.log(fieldsFeatures);
                         }}
@@ -340,7 +346,7 @@ export default function CreatePage() {
                                   <TableCell className="font-medium text-center">
                                     <FormField
                                       control={form.control}
-                                      name={`questionImpacts.${idx}.${idx2}.affirmative`}
+                                      name={`questionImpacts.${idx}.outcomes.${idx2}.affirmative`}
                                       render={({ field }) => (
                                         <FormItem>
                                           <FormControl>
@@ -357,7 +363,7 @@ export default function CreatePage() {
                                   <TableCell className="font-medium text-center">
                                     <FormField
                                       control={form.control}
-                                      name={`questionImpacts.${idx}.${idx2}.negative`}
+                                      name={`questionImpacts.${idx}.outcomes.${idx2}.negative`}
                                       render={({ field }) => (
                                         <FormItem>
                                           <FormControl>
@@ -385,11 +391,16 @@ export default function CreatePage() {
                       appendQuestions({
                         questionText: "",
                       });
-                      appendImpacts(
+                      console.log(
                         watchedOutcomes.map(() => {
                           return { affirmative: "", negative: "" };
                         })
                       );
+                      appendImpacts({
+                        outcomes: watchedOutcomes.map(() => {
+                          return { affirmative: "", negative: "" };
+                        }),
+                      });
                     }}
                     className="w-fit"
                     variant="neutral"
