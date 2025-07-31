@@ -14,10 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-gray-100 font-base text-foreground scrollbar scrollbar-thumb-black dark:scrollbar-thumb-white mx-auto max-w-[700px] px-5">
-        
-        {children}
-        <Toaster richColors />
+      <body className="bg-gray-100 font-base text-foreground scrollbar scrollbar-thumb-black dark:scrollbar-thumb-white">
+        <div className="mx-auto max-w-[700px] px-5">
+          {children}
+          <Toaster richColors />
+        </div>
       </body>
     </html>
   );

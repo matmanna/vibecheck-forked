@@ -42,4 +42,3 @@ export const QuizSchema = z.object({
 });
 
 export type QuizType = z.infer<typeof QuizSchema>;
-
