@@ -7,14 +7,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import {
-  QuizEventualitiesSchema,
-  QuizFeaturesSchema,
-  QuizQuestionsSchema,
-  QuizSchema,
-} from "@/lib/schema";
+import { FormSchema, QuizImpactsSchema } from "@/lib/schema";
 import { Input } from "@/components/ui/input";
-import z, { string } from "zod";
+import z from "zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,49 +25,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const FeaturesSchema = QuizFeaturesSchema.omit({
-  quizFeatureEventualities: true,
-  id: true,
-  quizId: true,
-});
-
-const QuestionsSchema = QuizQuestionsSchema.omit({
-  id: true,
-  quizId: true,
-  featureId: true,
-});
-
-const OutcomesSchema = QuizEventualitiesSchema.omit({
-  id: true,
-  quizId: true,
-});
-
-const QuizImpactsSchema = z.object({
-  outcomes: z.array(z.object({ affirmative: string(), negative: string() })),
-});
-
-const FormSchema = QuizSchema.omit({
-  id: true,
-  quizFeatures: true,
-  quizEventualities: true,
-  quizQuestions: true,
-})
-  .and(z.object({ features: z.array(FeaturesSchema) }))
-  .and(z.object({ questions: z.array(QuestionsSchema) }))
-  .and(z.object({ eventualities: z.array(OutcomesSchema) }))
-  .and(
-    z.object({
-      questionImpacts: z.array(QuizImpactsSchema),
-    })
-  );
+import { orpc } from "@/lib/orpc";
+import { useRouter } from "next/navigation";
 
 export default function CreatePage() {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       title: "",
       description: "",
+      eventualities: [],
+      questionImpacts: [],
+      questions: [],
     },
     mode: "onChange",
   });
@@ -98,16 +64,6 @@ export default function CreatePage() {
   });
 
   const {
-    fields: fieldsFeatures,
-    // append: appendFeatures,
-    // remove: removeFeatures,
-  } = useFieldArray({
-    control,
-    name: "features",
-  });
-
-  const {
-    // fields: fieldsImpacts,
     append: appendImpacts,
     update: updateImpacts,
     remove: removeImpacts,
@@ -121,15 +77,21 @@ export default function CreatePage() {
     name: "questionImpacts",
   });
 
-  // const watchedFeatures = useWatch({
-  //   control: form.control,
-  //   name: "features",
-  // });
-
   const watchedOutcomes = useWatch({
     control: form.control,
     name: "eventualities",
   });
+
+  async function createQuiz() {
+    try {
+      const quizId = await orpc.quiz.create.call({
+        formData: form.getValues(),
+      });
+      router.push(`/quiz/${quizId}`);
+    } catch (e) {
+      console.log("Error creating quiz: ", e);
+    }
+  }
 
   return (
     <div className="h-screen h-full w-screen flex overflow-y-auto">
@@ -239,7 +201,6 @@ export default function CreatePage() {
                             newList.push({ affirmative: "", negative: "" });
                             updateImpacts(i, { outcomes: newList });
                           }
-                          console.log(fieldsFeatures);
                         }}
                         className="w-fit"
                         variant="neutral"
@@ -249,51 +210,6 @@ export default function CreatePage() {
                       </Button>
                     </CardContent>
                   </Card>
-                  {/* <Card className="min-w-md gap-2">
-                    <CardHeader>
-                      <CardTitle>Features</CardTitle>
-                      <CardDescription>
-                        {`Features are categories of questions. For example, a question of "Do you like donuts" could be linked to a feature called "likes donuts".`}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-2 gap-2 flex flex-col">
-                      {fieldsFeatures.map((item, idx) => (
-                        <FormField
-                          key={item.id}
-                          control={form.control}
-                          name={`quizFeatures.${idx}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="flex flex-row gap-2 items-center">
-                                <FormControl>
-                                  <Input {...field} placeholder="Feature..." />
-                                </FormControl>
-                                <Trash2
-                                  onClick={() => removeFeatures(idx)}
-                                ></Trash2>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                      ))}
-                      <Button
-                        onClick={() => {
-                          appendFeatures({
-                            id: 0,
-                            quizId: 0,
-                            name: "",
-                            category: "",
-                          });
-                          console.log(fieldsFeatures);
-                        }}
-                        className="w-fit"
-                        variant="neutral"
-                      >
-                        <Plus></Plus>
-                        Add Feature
-                      </Button>
-                    </CardContent>
-                  </Card> */}
                 </div>
               </TabsContent>
               <TabsContent value="questions">
@@ -326,92 +242,104 @@ export default function CreatePage() {
                             </FormItem>
                           )}
                         />
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="text-center">
-                                Outcome
-                              </TableHead>
-                              <TableHead className="text-center">Yes</TableHead>
-                              <TableHead className="text-center">No</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {watchedOutcomes.map((item2, idx2) => {
-                              return (
-                                <TableRow key={`q${idx}${idx2}-trow`}>
-                                  <TableCell className="font-medium text-center">
-                                    {item2.name}
-                                  </TableCell>
-                                  <TableCell className="font-medium text-center">
-                                    <FormField
-                                      control={form.control}
-                                      name={`questionImpacts.${idx}.outcomes.${idx2}.affirmative`}
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormControl>
-                                            <Input
-                                              {...field}
-                                              className="text-center"
-                                              placeholder="-"
-                                            />
-                                          </FormControl>
-                                        </FormItem>
-                                      )}
-                                    />
-                                  </TableCell>
-                                  <TableCell className="font-medium text-center">
-                                    <FormField
-                                      control={form.control}
-                                      name={`questionImpacts.${idx}.outcomes.${idx2}.negative`}
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormControl>
-                                            <Input
-                                              {...field}
-                                              className="text-center"
-                                              placeholder="-"
-                                            />
-                                          </FormControl>
-                                        </FormItem>
-                                      )}
-                                    />
-                                  </TableCell>
-                                  <TableCell className="font-medium text-center"></TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
+                        {(watchedOutcomes && watchedOutcomes.length) > 0 ? (
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="text-center min-w-full max-w-[125px]">
+                                  Outcome
+                                </TableHead>
+                                <TableHead className="text-center">
+                                  Yes
+                                </TableHead>
+                                <TableHead className="text-center">
+                                  No
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {watchedOutcomes.map((item2, idx2) => {
+                                return (
+                                  <TableRow key={`q${idx}${idx2}-trow`}>
+                                    <TableCell className="font-medium text-center min-w-full w-[125px] break-all inline-block whitespace-normal align-middle">
+                                      {item2.name}
+                                    </TableCell>
+                                    <TableCell className="font-medium text-center">
+                                      <FormField
+                                        control={form.control}
+                                        name={`questionImpacts.${idx}.outcomes.${idx2}.affirmative`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormControl>
+                                              <Input
+                                                {...field}
+                                                className="text-center"
+                                                placeholder="-"
+                                              />
+                                            </FormControl>
+                                          </FormItem>
+                                        )}
+                                      />
+                                    </TableCell>
+                                    <TableCell className="font-medium text-center">
+                                      <FormField
+                                        control={form.control}
+                                        name={`questionImpacts.${idx}.outcomes.${idx2}.negative`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormControl>
+                                              <Input
+                                                {...field}
+                                                className="text-center"
+                                                placeholder="-"
+                                              />
+                                            </FormControl>
+                                          </FormItem>
+                                        )}
+                                      />
+                                    </TableCell>
+                                    <TableCell className="font-medium text-center"></TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        ) : (
+                          <p className="text-center">
+                            Add an outcome to set how this question impacts
+                            results
+                          </p>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
-                  <Button
-                    onClick={() => {
-                      appendQuestions({
-                        questionText: "",
-                      });
-                      console.log(
-                        watchedOutcomes.map(() => {
-                          return { affirmative: "", negative: "" };
-                        })
-                      );
-                      appendImpacts({
-                        outcomes: watchedOutcomes.map(() => {
-                          return { affirmative: "", negative: "" };
-                        }),
-                      });
-                    }}
-                    className="w-fit"
-                    variant="neutral"
-                  >
-                    <Plus></Plus>
-                    Add Question
-                  </Button>
+                  {(watchedOutcomes && watchedOutcomes.length) > 0 ? (
+                    <Button
+                      onClick={() => {
+                        appendQuestions({
+                          questionText: "",
+                        });
+                        appendImpacts({
+                          outcomes: watchedOutcomes.map(() => {
+                            return { affirmative: "", negative: "" };
+                          }),
+                        });
+                      }}
+                      className="w-fit"
+                      variant="neutral"
+                    >
+                      <Plus></Plus>
+                      Add Question
+                    </Button>
+                  ) : (
+                    <p className="text-center">
+                      Add an outcome to add a question
+                    </p>
+                  )}
                 </div>
               </TabsContent>
               <TabsContent value="publish">
-                <Button>Publish Quiz!</Button>
+                <Button onClick={() => createQuiz()}>Publish Quiz!</Button>
               </TabsContent>
             </Tabs>
           </Form>
