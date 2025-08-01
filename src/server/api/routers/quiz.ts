@@ -105,68 +105,73 @@ export const quizRouter = {
     .input(z.object({ formData: FormSchema }))
     .handler(async ({ input }) => {
       try {
-        const quizCreated = await db
-          .insert(quizzesTable)
-          .values({
-            title: input.formData.title,
-            description: input.formData.description,
-          })
-          .returning();
-        const newEventualities = input.formData.eventualities.map((item) => {
-          return {
-            quizId: quizCreated[0].id,
-            name: item.name,
-            resultDescription: item.resultDescription,
-          };
-        });
-        const eventualitiesCreated = await db
-          .insert(quizEventualitiesTable)
-          .values(newEventualities)
-          .returning();
-        const newFeatures = input.formData.questions.map((item, idx) => {
-          return {
-            quizId: quizCreated[0].id,
-            name: `feature_${idx.toString()}`,
-            category: idx.toString(),
-          };
-        });
-        const featuresCreated = await db
-          .insert(quizFeaturesTable)
-          .values(newFeatures)
-          .returning();
-        const newQuestions = input.formData.questions.map((item, idx) => {
-          return {
-            quizId: quizCreated[0].id,
-            questionText: item.questionText,
-            featureId: featuresCreated[idx].id,
-          };
-        });
-        const questionsCreated = await db
-          .insert(quizQuestionsTable)
-          .values(newQuestions)
-          .returning();
-        const newLinkedRecords = [];
-        for (let i = 0; i < questionsCreated.length; i++) {
-          for (let i2 = 0; i2 < eventualitiesCreated.length; i2++) {
-            newLinkedRecords.push({
-              featureId: featuresCreated[i].id,
-              eventualityId: eventualitiesCreated[i2].id,
-              affirmativePoints: parseInt(
-                input.formData.questionImpacts[i].outcomes[i2].affirmative
-              ),
-              negativePoints: parseInt(
-                input.formData.questionImpacts[i].outcomes[i2].negative
-              ),
-              name: featuresCreated[i].name,
-              impactType: null,
-            });
+        if (
+          input.formData.eventualities.length > 0 &&
+          input.formData.questions.length > 0
+        ) {
+          const quizCreated = await db
+            .insert(quizzesTable)
+            .values({
+              title: input.formData.title,
+              description: input.formData.description,
+            })
+            .returning();
+          const newEventualities = input.formData.eventualities.map((item) => {
+            return {
+              quizId: quizCreated[0].id,
+              name: item.name,
+              resultDescription: item.resultDescription,
+            };
+          });
+          const eventualitiesCreated = await db
+            .insert(quizEventualitiesTable)
+            .values(newEventualities)
+            .returning();
+          const newFeatures = input.formData.questions.map((item, idx) => {
+            return {
+              quizId: quizCreated[0].id,
+              name: `feature_${idx.toString()}`,
+              category: idx.toString(),
+            };
+          });
+          const featuresCreated = await db
+            .insert(quizFeaturesTable)
+            .values(newFeatures)
+            .returning();
+          const newQuestions = input.formData.questions.map((item, idx) => {
+            return {
+              quizId: quizCreated[0].id,
+              questionText: item.questionText,
+              featureId: featuresCreated[idx].id,
+            };
+          });
+          const questionsCreated = await db
+            .insert(quizQuestionsTable)
+            .values(newQuestions)
+            .returning();
+          const newLinkedRecords = [];
+          for (let i = 0; i < questionsCreated.length; i++) {
+            for (let i2 = 0; i2 < eventualitiesCreated.length; i2++) {
+              newLinkedRecords.push({
+                featureId: featuresCreated[i].id,
+                eventualityId: eventualitiesCreated[i2].id,
+                affirmativePoints: parseInt(
+                  input.formData.questionImpacts[i].outcomes[i2].affirmative
+                ),
+                negativePoints: parseInt(
+                  input.formData.questionImpacts[i].outcomes[i2].negative
+                ),
+                name: featuresCreated[i].name,
+                impactType: null,
+              });
+            }
           }
+          await db
+            .insert(quizFeatureEventualitiesTable)
+            .values(newLinkedRecords)
+            .returning();
+          return quizCreated[0].id;
         }
-        await db
-          .insert(quizFeatureEventualitiesTable)
-          .values(newLinkedRecords)
-          .returning();
-        return quizCreated[0].id;
       } catch (e) {
         console.log("error creating quiz in server: ", e);
         return "-";

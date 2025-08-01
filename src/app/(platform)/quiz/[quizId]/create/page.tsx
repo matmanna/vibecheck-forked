@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table";
 import { orpc } from "@/lib/orpc";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function CreatePage() {
   const router = useRouter();
@@ -84,12 +85,22 @@ export default function CreatePage() {
 
   async function createQuiz() {
     try {
-      const quizId = await orpc.quiz.create.call({
-        formData: form.getValues(),
-      });
-      router.push(`/quiz/${quizId}`);
+      if (form.formState.isValid) {
+        const quizId = await orpc.quiz.create.call({
+          formData: form.getValues(),
+        });
+        router.push(`/quiz/${quizId}`);
+      } else {
+        toast("Invalid inputs", {
+          description:
+            "Check your quiz details and questions to make sure there are no empty or invalid fields.",
+        });
+      }
     } catch (e) {
       console.log("Error creating quiz: ", e);
+      toast("Erorr updating quiz", {
+        description: "An error occurred updating the quiz",
+      });
     }
   }
 
@@ -198,7 +209,7 @@ export default function CreatePage() {
                           });
                           for (let i = 0; i < fieldsQuestions.length; i++) {
                             const newList = watchedImpacts[i].outcomes ?? [];
-                            newList.push({ affirmative: "", negative: "" });
+                            newList.push({ affirmative: "0", negative: "0" });
                             updateImpacts(i, { outcomes: newList });
                           }
                         }}
@@ -307,7 +318,7 @@ export default function CreatePage() {
                         ) : (
                           <p className="text-center">
                             Add an outcome to set how this question impacts
-                            results
+                            results.
                           </p>
                         )}
                       </CardContent>
@@ -333,13 +344,31 @@ export default function CreatePage() {
                     </Button>
                   ) : (
                     <p className="text-center">
-                      Add an outcome to add a question
+                      Add an outcome to add a question.
                     </p>
                   )}
                 </div>
               </TabsContent>
               <TabsContent value="publish">
-                <Button onClick={() => createQuiz()}>Publish Quiz!</Button>
+                <div className="flex flex-col gap-2">
+                  {(fieldsOutcomes.length < 1 ||
+                    fieldsQuestions.length < 1) && (
+                    <p className="text-center">
+                      {fieldsOutcomes.length < 1
+                        ? "A quiz must have at least one outcome."
+                        : "A quiz must have at least one question."}
+                    </p>
+                  )}
+                  <Button
+                    className="w-fit"
+                    disabled={
+                      fieldsOutcomes.length < 1 || fieldsQuestions.length < 1
+                    }
+                    onClick={() => createQuiz()}
+                  >
+                    Publish Quiz!
+                  </Button>
+                </div>
               </TabsContent>
             </Tabs>
           </Form>
