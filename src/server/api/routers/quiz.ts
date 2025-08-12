@@ -1,17 +1,11 @@
 import { db } from "@/server/db";
 import { eq } from "drizzle-orm";
-import {
-  quizEventualitiesTable,
-  quizFeatureEventualitiesTable,
-  quizFeaturesTable,
-  quizQuestionsTable,
-  quizzesTable,
-  submissionsTable,
-} from "@/server/db/schema";
+import { quizzesTable, submissionsTable } from "@/server/db/schema";
 import { os } from "@orpc/server";
 import { QuizSchema } from "@/server/schema";
 import z from "zod";
 import { FormSchema } from "@/lib/schema";
+import { update } from "@/server/updateCode";
 
 export const quizRouter = {
   find: os.input(QuizSchema.pick({ id: true })).handler(async ({ input }) => {
@@ -101,77 +95,25 @@ export const quizRouter = {
         };
       }
     }),
-  create: os
-    .input(z.object({ formData: FormSchema }))
+  createBlank: os.handler(async () => {
+    try {
+      const response = await db
+        .insert(quizzesTable)
+        .values({
+          title: "",
+          description: "",
+        })
+        .returning();
+      return response[0].id;
+    } catch (e) {
+      console.log("Error creating a quiz: ", e);
+    }
+  }),
+  update: os
+    .input(z.object({ quizId: z.int(), formData: FormSchema }))
     .handler(async ({ input }) => {
       try {
-        if (
-          input.formData.eventualities.length > 0 &&
-          input.formData.questions.length > 0
-        ) {
-          const quizCreated = await db
-            .insert(quizzesTable)
-            .values({
-              title: input.formData.title,
-              description: input.formData.description,
-            })
-            .returning();
-          const newEventualities = input.formData.eventualities.map((item) => {
-            return {
-              quizId: quizCreated[0].id,
-              name: item.name,
-              resultDescription: item.resultDescription,
-            };
-          });
-          const eventualitiesCreated = await db
-            .insert(quizEventualitiesTable)
-            .values(newEventualities)
-            .returning();
-          const newFeatures = input.formData.questions.map((item, idx) => {
-            return {
-              quizId: quizCreated[0].id,
-              name: `feature_${idx.toString()}`,
-              category: idx.toString(),
-            };
-          });
-          const featuresCreated = await db
-            .insert(quizFeaturesTable)
-            .values(newFeatures)
-            .returning();
-          const newQuestions = input.formData.questions.map((item, idx) => {
-            return {
-              quizId: quizCreated[0].id,
-              questionText: item.questionText,
-              featureId: featuresCreated[idx].id,
-            };
-          });
-          const questionsCreated = await db
-            .insert(quizQuestionsTable)
-            .values(newQuestions)
-            .returning();
-          const newLinkedRecords = [];
-          for (let i = 0; i < questionsCreated.length; i++) {
-            for (let i2 = 0; i2 < eventualitiesCreated.length; i2++) {
-              newLinkedRecords.push({
-                featureId: featuresCreated[i].id,
-                eventualityId: eventualitiesCreated[i2].id,
-                affirmativePoints: parseInt(
-                  input.formData.questionImpacts[i].outcomes[i2].affirmative
-                ),
-                negativePoints: parseInt(
-                  input.formData.questionImpacts[i].outcomes[i2].negative
-                ),
-                name: featuresCreated[i].name,
-                impactType: null,
-              });
-            }
-          }
-          await db
-            .insert(quizFeatureEventualitiesTable)
-            .values(newLinkedRecords)
-            .returning();
-          return quizCreated[0].id;
-        }
+        update(input);
       } catch (e) {
         console.log("error creating quiz in server: ", e);
         return "-";

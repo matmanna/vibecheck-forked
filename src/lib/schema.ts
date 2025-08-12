@@ -50,13 +50,10 @@ export type QuizType = z.infer<typeof QuizSchema>;
 // });
 
 const QuestionsSchema = QuizQuestionsSchema.omit({
-  id: true,
   quizId: true,
-  featureId: true,
 });
 
 const OutcomesSchema = QuizEventualitiesSchema.omit({
-  id: true,
   quizId: true,
 });
 
