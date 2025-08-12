@@ -26,7 +26,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { orpc } from "@/lib/orpc";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 type ParamsType = {
@@ -35,8 +34,6 @@ type ParamsType = {
 };
 
 export default function EditComponent({ prefillData, quizId }: ParamsType) {
-  const router = useRouter();
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: prefillData,
@@ -91,11 +88,10 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
           formData: form.getValues(),
         });
         toast("Quiz published!", {
-          description:
-            "Quiz successfully published. Click to take the quiz",
+          description: "Quiz successfully published. Click to take the quiz",
           action: {
             label: "Open Quiz",
-            onClick: () => router.push(`/quiz/${quizId}`),
+            onClick: () => window.open(`http://localhost:3000/quiz/${quizId}`, '_blank'),
           },
         });
       } else {
@@ -340,7 +336,7 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
           </div>
         </TabsContent>
         <TabsContent value="publish">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-4">
             {(fieldsOutcomes.length < 1 || fieldsQuestions.length < 1) && (
               <p className="text-center">
                 {fieldsOutcomes.length < 1
@@ -354,6 +350,13 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
               onClick={() => createQuiz()}
             >
               Publish Quiz!
+            </Button>
+            <Button
+              variant="neutral"
+              className="w-fit"
+              onClick={() => window.open(`http://localhost:3000/quiz/${quizId}`, '_blank')}
+            >
+              Open Published Quiz
             </Button>
           </div>
         </TabsContent>
