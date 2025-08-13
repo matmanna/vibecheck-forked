@@ -35,6 +35,9 @@ export default function EditPage() {
           questionText: item.questionText,
           featureId: item.featureId,
           id: item.id,
+          topic:
+            quizData.quizFeatures.find((item2) => item2.id == item.featureId)
+              ?.name ?? "topicname",
         };
       }),
       eventualities: quizData.quizEventualities.map((item) => {

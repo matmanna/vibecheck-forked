@@ -10,7 +10,12 @@ import {
 import { FormSchema, QuizImpactsSchema } from "@/lib/schema";
 import { Input } from "@/components/ui/input";
 import z from "zod";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+} from "@/components/ui/form";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
@@ -241,6 +246,17 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name={`questions.${idx}.topic`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input {...field} placeholder="Question Topic: 1-2 words to summarize the question..." />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                   {(watchedOutcomes && watchedOutcomes.length) > 0 ? (
                     <Table>
                       <TableHeader>
@@ -314,6 +330,7 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
                     id: -1,
                     questionText: "",
                     featureId: -1,
+                    topic: "",
                   });
                   appendImpacts({
                     outcomes: watchedOutcomes.map(() => {

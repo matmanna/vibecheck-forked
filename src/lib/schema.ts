@@ -51,7 +51,7 @@ export type QuizType = z.infer<typeof QuizSchema>;
 
 const QuestionsSchema = QuizQuestionsSchema.omit({
   quizId: true,
-});
+}).and(z.object({ topic: z.string() }));
 
 const OutcomesSchema = QuizEventualitiesSchema.omit({
   quizId: true,

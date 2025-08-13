@@ -92,7 +92,7 @@ export async function update(input: z.infer<typeof inputSchema>) {
         return {
           id: item.featureId,
           quizId: input.quizId,
-          name: `feature_${randFeatureName.toString()}`,
+          name: item.topic,
           category: randFeatureName.toString(),
         };
       });
@@ -155,13 +155,13 @@ export async function update(input: z.infer<typeof inputSchema>) {
             })
             .where(eq(quizQuestionsTable.id, newQuestions[i].id))
             .returning();
-          await db
-            .update(quizFeaturesTable)
-            .set({
-              name: "feature_" + newRecord[0].id,
-            })
-            .where(eq(quizFeaturesTable.id, newRecord[0].featureId))
-            .returning();
+          // await db
+          //   .update(quizFeaturesTable)
+          //   .set({
+          //     name: "feature_" + newRecord[0].id,
+          //   })
+          //   .where(eq(quizFeaturesTable.id, newRecord[0].featureId))
+          //   .returning();
           questionsCreated.push(newRecord[0]);
         } else {
           const newRecord = await db
@@ -172,14 +172,14 @@ export async function update(input: z.infer<typeof inputSchema>) {
               featureId: newQuestions[i].featureId,
             })
             .returning();
-          await db
-            .update(quizFeaturesTable)
-            .set({
-              name: "feature_" + newRecord[0].id,
-            })
-            .where(eq(quizFeaturesTable.id, newRecord[0].featureId))
-            .returning();
-          featuresCreated[i].name = "feature_" + newRecord[0].id;
+          // await db
+          //   .update(quizFeaturesTable)
+          //   .set({
+          //     name: "feature_" + newRecord[0].id,
+          //   })
+          //   .where(eq(quizFeaturesTable.id, newRecord[0].featureId))
+          //   .returning();
+          // featuresCreated[i].name = "feature_" + newRecord[0].id;
           questionsCreated.push(newRecord[0]);
         }
       }
