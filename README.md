@@ -5,7 +5,7 @@ Localhost: http://localhost:3000
 Current features:
 - Create a quiz
 - Edit & update a quiz
-- Take a quiz and receive results
+- Take a quiz and receive ranked results
 
 To do:
 - Auth
