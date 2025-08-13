@@ -86,10 +86,6 @@ export async function update(input: z.infer<typeof inputSchema>) {
           eventualitiesCreated.push(newRecord[0]);
         }
       }
-      console.log(
-        "eventualities created: ",
-        eventualitiesCreated.map((item) => item.id)
-      );
       // new features
       const newFeatures = input.formData.questions.map((item, idx) => {
         const randFeatureName = idx;
@@ -131,10 +127,6 @@ export async function update(input: z.infer<typeof inputSchema>) {
           featuresCreated.push(newRecord[0]);
         }
       }
-      console.log(
-        "features created: ",
-        featuresCreated.map((item) => item.id)
-      );
       // questions
       const newQuestions = input.formData.questions.map((item, idx) => {
         const featureId = featuresCreated[idx].id;
@@ -191,7 +183,6 @@ export async function update(input: z.infer<typeof inputSchema>) {
           questionsCreated.push(newRecord[0]);
         }
       }
-      console.log("questions created: ", questionsCreated);
       // linked records
       const NewLinkSchema = QuizFeatureEventualitySchema.omit({ id: true });
       const newLinkedRecords: z.infer<typeof NewLinkSchema>[] = [];
@@ -211,7 +202,6 @@ export async function update(input: z.infer<typeof inputSchema>) {
           });
         }
       }
-      console.log("to create linked: ", newLinkedRecords);
       const linkedRecordsCreated = [];
       for (let i = 0; i < newLinkedRecords.length; i++) {
         const alreadyExists =
@@ -263,10 +253,6 @@ export async function update(input: z.infer<typeof inputSchema>) {
           linkedRecordsCreated.push(newRecord[0]);
         }
       }
-      console.log(
-        "linked created: ",
-        linkedRecordsCreated.map((item) => item.id)
-      );
       return input.quizId;
     }
   }

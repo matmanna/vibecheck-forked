@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/table";
 import { orpc } from "@/lib/orpc";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 type ParamsType = {
   prefillData: z.infer<typeof FormSchema>;
@@ -35,7 +34,6 @@ type ParamsType = {
 };
 
 export default function EditComponent({ prefillData, quizId }: ParamsType) {
-  const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: prefillData,
