@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table";
 import { orpc } from "@/lib/orpc";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type ParamsType = {
   prefillData: z.infer<typeof FormSchema>;
@@ -34,6 +35,7 @@ type ParamsType = {
 };
 
 export default function EditComponent({ prefillData, quizId }: ParamsType) {
+  const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: prefillData,
@@ -87,12 +89,9 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
           quizId: quizId,
           formData: form.getValues(),
         });
+        window.location.reload();
         toast("Quiz published!", {
           description: "Quiz successfully published. Click to take the quiz",
-          action: {
-            label: "Open Quiz",
-            onClick: () => window.open(`http://localhost:3000/quiz/${quizId}`, '_blank'),
-          },
         });
       } else {
         toast("Invalid inputs", {
@@ -354,7 +353,9 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
             <Button
               variant="neutral"
               className="w-fit"
-              onClick={() => window.open(`http://localhost:3000/quiz/${quizId}`, '_blank')}
+              onClick={() =>
+                window.open(`http://localhost:3000/quiz/${quizId}`, "_blank")
+              }
             >
               Open Published Quiz
             </Button>

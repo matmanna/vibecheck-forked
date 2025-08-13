@@ -168,7 +168,7 @@ export async function update(input: z.infer<typeof inputSchema>) {
             .set({
               name: "feature_" + newRecord[0].id,
             })
-            .where(eq(quizFeaturesTable.id, newRecord[i].featureId))
+            .where(eq(quizFeaturesTable.id, newRecord[0].featureId))
             .returning();
           questionsCreated.push(newRecord[0]);
         } else {
@@ -180,6 +180,14 @@ export async function update(input: z.infer<typeof inputSchema>) {
               featureId: newQuestions[i].featureId,
             })
             .returning();
+          await db
+            .update(quizFeaturesTable)
+            .set({
+              name: "feature_" + newRecord[0].id,
+            })
+            .where(eq(quizFeaturesTable.id, newRecord[0].featureId))
+            .returning();
+          featuresCreated[i].name = "feature_" + newRecord[0].id;
           questionsCreated.push(newRecord[0]);
         }
       }
