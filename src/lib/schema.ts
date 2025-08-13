@@ -43,3 +43,35 @@ export const QuizSchema = z.object({
 
 export type QuizType = z.infer<typeof QuizSchema>;
 
+// const FeaturesSchema = QuizFeaturesSchema.omit({
+//   quizFeatureEventualities: true,
+//   id: true,
+//   quizId: true,
+// });
+
+const QuestionsSchema = QuizQuestionsSchema.omit({
+  quizId: true,
+}).and(z.object({ topic: z.string() }));
+
+const OutcomesSchema = QuizEventualitiesSchema.omit({
+  quizId: true,
+});
+
+export const QuizImpactsSchema = z.object({
+  outcomes: z.array(z.object({ affirmative: z.string(), negative: z.string() })),
+});
+
+export const FormSchema = QuizSchema.omit({
+  id: true,
+  quizFeatures: true,
+  quizEventualities: true,
+  quizQuestions: true,
+})
+  // .and(z.object({ features: z.array(FeaturesSchema) }))
+  .and(z.object({ questions: z.array(QuestionsSchema) }))
+  .and(z.object({ eventualities: z.array(OutcomesSchema) }))
+  .and(
+    z.object({
+      questionImpacts: z.array(QuizImpactsSchema),
+    })
+  );

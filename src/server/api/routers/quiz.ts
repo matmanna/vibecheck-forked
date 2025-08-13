@@ -4,6 +4,8 @@ import { quizzesTable, submissionsTable } from "@/server/db/schema";
 import { os } from "@orpc/server";
 import { QuizSchema } from "@/server/schema";
 import z from "zod";
+import { FormSchema } from "@/lib/schema";
+import { update } from "@/server/updateCode";
 
 export const quizRouter = {
   find: os.input(QuizSchema.pick({ id: true })).handler(async ({ input }) => {
@@ -57,7 +59,9 @@ export const quizRouter = {
         },
       });
       if (submission) {
-        const eventualityScores = submission.quiz.quizEventualities.map(() => 0);
+        const eventualityScores = submission.quiz.quizEventualities.map(
+          () => 0
+        );
         submission.quiz.quizQuestions.forEach((question, index) => {
           const answer = submission.answers[index];
           const feature = submission.quiz.quizFeatures.find(
@@ -89,6 +93,30 @@ export const quizRouter = {
           ...submission,
           results: eventualityScores,
         };
+      }
+    }),
+  createBlank: os.handler(async () => {
+    try {
+      const response = await db
+        .insert(quizzesTable)
+        .values({
+          title: "",
+          description: "",
+        })
+        .returning();
+      return response[0].id;
+    } catch (e) {
+      console.log("Error creating a quiz: ", e);
+    }
+  }),
+  update: os
+    .input(z.object({ quizId: z.int(), formData: FormSchema }))
+    .handler(async ({ input }) => {
+      try {
+        update(input);
+      } catch (e) {
+        console.log("error creating quiz in server: ", e);
+        return "-";
       }
     }),
 };
