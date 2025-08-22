@@ -18,12 +18,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { orpc } from "@/lib/orpc";
 import { ORPCError } from "@orpc/client";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Pin, RotateCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pin } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useParams, useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 const FormSchema = z.object({
   questions: z.array(
@@ -121,7 +122,7 @@ export default function QuizPage() {
           <div className="w-full flex-shrink-0 w-[100%] snap-start snap-center flex items-center justify-center p-4">
             {isLoading && (
               <div className="flex flex-row max-w-md flex-grow-1 justify-center w-full">
-                <RotateCw className="animate-spin" />
+                <Spinner variant={"ellipsis"} size={32} />
               </div>
             )}
             {!isLoading && (

@@ -45,7 +45,7 @@ export default function PlatformLayout({
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="https://ui.shadcn.com/docs">Settings</Link>
+                  <Link href="/settings">Settings</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </div>

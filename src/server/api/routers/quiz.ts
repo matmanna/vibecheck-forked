@@ -1,11 +1,32 @@
 import { db } from "@/server/db";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { quizzesTable, submissionsTable } from "@/server/db/schema";
-import { os } from "@orpc/server";
-import { QuizSchema } from "@/server/schema";
+import { ORPCError, os } from "@orpc/server";
+// import { QuizSchema } from "@/server/schema";
 import z from "zod";
-import { FormSchema } from "@/lib/schema";
+import { FormSchema, QuizSchema } from "@/lib/schema";
 import { update } from "@/server/updateCode";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { calcSubmissionResults } from "@/server/calcSubmissionResults";
+
+const authMiddleware = os
+  .$context<{ headers: Headers }>()
+  .middleware(async ({ context, next }) => {
+    const session = await auth.api.getSession({
+      headers: context.headers,
+    });
+
+    if (!session) {
+      throw new ORPCError("UNAUTHORIZED", {
+        message: "Authentication required",
+      });
+    }
+
+    return next({ context: { ...context, session } });
+  });
+
+const base = os.$context<{ headers: Headers }>().use(authMiddleware);
 
 export const quizRouter = {
   find: os.input(QuizSchema.pick({ id: true })).handler(async ({ input }) => {
@@ -23,27 +44,46 @@ export const quizRouter = {
     });
     return quiz || null;
   }),
-  findAll: os.handler(async () => {
-    const quizzes = await db.query.quizzesTable.findMany();
-    return quizzes;
+  findMany: base.handler(async ({ context }) => {
+    const session = context.session;
+    const quizzes = await db.query.quizzesTable.findMany({
+      where: eq(quizzesTable.user, session.user.id),
+      with: {
+        quizFeatures: {
+          with: {
+            quizFeatureEventualities: true,
+          },
+        },
+        quizQuestions: true,
+        quizEventualities: true,
+      },
+    });
+    return quizzes || [];
   }),
-  submitResponse: os
+  submitResponse: base
     .input(z.object({ quizId: z.number(), answers: z.array(z.string()) }))
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
+      const session = context.session;
+
       const submission = await db
         .insert(submissionsTable)
         .values({
           quizId: input.quizId,
           answers: input.answers,
+          user: session ? session.user.id : "anon",
         })
         .returning();
       return submission[0].id;
     }),
-  getSubmission: os
+  getSubmission: base
     .input(z.object({ submissionId: z.number() }))
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
+      const session = context.session;
       const submission = await db.query.submissionsTable.findFirst({
-        where: eq(submissionsTable.id, input.submissionId),
+        where: and(
+          eq(submissionsTable.id, input.submissionId),
+          eq(submissionsTable.user, session.user.id)
+        ),
         with: {
           quiz: {
             with: {
@@ -58,50 +98,55 @@ export const quizRouter = {
           },
         },
       });
+
       if (submission) {
-        const eventualityScores = submission.quiz.quizEventualities.map(
-          () => 0
-        );
-        submission.quiz.quizQuestions.forEach((question, index) => {
-          const answer = submission.answers[index];
-          const feature = submission.quiz.quizFeatures.find(
-            (f) => f.id === question.featureId
-          );
-          if (feature) {
-            feature.quizFeatureEventualities
-              .filter((item) => item.featureId == feature.id)
-              .forEach((linkRecord) => {
-                if (answer === "yes") {
-                  eventualityScores[
-                    submission.quiz.quizEventualities
-                      .map((item) => item.id)
-                      .indexOf(linkRecord.eventualityId)
-                  ] += linkRecord.affirmativePoints;
-                } else if (answer === "no") {
-                  eventualityScores[
-                    submission.quiz.quizEventualities
-                      .map((item) => item.id)
-                      .indexOf(linkRecord.eventualityId)
-                  ] += linkRecord.negativePoints;
-                } else {
-                  // no change in points
-                }
-              });
-          }
-        });
-        return {
-          ...submission,
-          results: eventualityScores,
-        };
+        const newSubmission = calcSubmissionResults(submission);
+        return newSubmission;
+      } else {
+        throw new ORPCError("UNAUTHORIZED");
       }
     }),
-  createBlank: os.handler(async () => {
+  getSubmissions: base.handler(async ({ context }) => {
+    const session = context.session;
+    const submissions = await db.query.submissionsTable.findMany({
+      where: and(eq(submissionsTable.user, session.user.id)),
+      with: {
+        quiz: {
+          with: {
+            quizFeatures: {
+              with: {
+                quizFeatureEventualities: true,
+              },
+            },
+            quizQuestions: true,
+            quizEventualities: true,
+          },
+        },
+      },
+    });
+    if (submissions && submissions.length > 0) {
+      const newSubmissions = [];
+      for (const submission of submissions) {
+        const newSubmission = await calcSubmissionResults(submission);
+        newSubmissions.push(newSubmission);
+      }
+      return newSubmissions;
+    } else {
+      return [];
+    }
+  }),
+
+  createBlank: base.handler(async () => {
     try {
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
       const response = await db
         .insert(quizzesTable)
         .values({
           title: "",
           description: "",
+          user: session ? session.user.id : "anon",
         })
         .returning();
       return response[0].id;
@@ -109,12 +154,16 @@ export const quizRouter = {
       console.log("Error creating a quiz: ", e);
     }
   }),
-  update: os
+  update: base
     .input(z.object({ quizId: z.int(), formData: FormSchema }))
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       try {
-        update(input);
+        const session = context.session;
+        update(input, session.user);
       } catch (e) {
+        if (e instanceof Error && e.message == "Unauthorized") {
+          throw new ORPCError("UNAUTHORIZED");
+        }
         console.log("error creating quiz in server: ", e);
         return "-";
       }
