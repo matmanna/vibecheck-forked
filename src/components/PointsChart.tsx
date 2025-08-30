@@ -38,7 +38,7 @@ export default function PointsChart({
         <YAxis type="category" dataKey="eventuality" />
         <Tooltip />
         <Legend />
-        <Bar dataKey="points" /> {/* Customize fill as needed */}
+        <Bar dataKey="points" />
         <ReferenceLine x={0} stroke="black" strokeWidth="2" /> 
       </BarChart>
     </ChartContainer>

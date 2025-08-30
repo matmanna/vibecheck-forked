@@ -32,6 +32,8 @@ export default function MePage() {
 
   const { isPending: submissionsLoading, data: submissions } = useQuery(
     orpc.quiz.getSubmissions.queryOptions({
+      staleTime: Infinity,
+      cacheTime: Infinity,
       onError: (error: ORPCError<string, unknown>) => {
         console.error("Error fetching submissions:", error);
       },
@@ -40,6 +42,8 @@ export default function MePage() {
 
   const { isPending: quizzesLoading, data: quizzes } = useQuery(
     orpc.quiz.findMany.queryOptions({
+      staleTime: Infinity,
+      cacheTime: Infinity,
       onError: (error: ORPCError<string, unknown>) => {
         console.error("Error fetching quizzes:", error);
       },

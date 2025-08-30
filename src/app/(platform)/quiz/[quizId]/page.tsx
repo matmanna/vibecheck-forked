@@ -70,6 +70,8 @@ export default function QuizPage() {
 
   const { isLoading, data: quizData } = useQuery(
     orpc.quiz.find.queryOptions({
+      staleTime: Infinity,
+      cacheTime: Infinity,
       input: { id: quizId },
       onError: (error: ORPCError<string, unknown>) => {
         console.error("Error fetching quiz:", error);

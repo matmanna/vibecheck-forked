@@ -36,6 +36,8 @@ export default function ResultsPage() {
 
   const { isLoading, data: submissionData } = useQuery(
     orpc.quiz.getSubmission.queryOptions({
+      staleTime: Infinity,
+      cacheTime: Infinity,
       input: { submissionId: resultId },
       onError: (error: ORPCError<string, unknown>) => {
         console.error("Error fetching quiz:", error);

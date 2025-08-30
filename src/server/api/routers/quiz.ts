@@ -2,7 +2,6 @@ import { db } from "@/server/db";
 import { and, eq } from "drizzle-orm";
 import { quizzesTable, submissionsTable } from "@/server/db/schema";
 import { ORPCError, os } from "@orpc/server";
-// import { QuizSchema } from "@/server/schema";
 import z from "zod";
 import { FormSchema, QuizSchema } from "@/lib/schema";
 import { update } from "@/server/updateCode";
@@ -75,14 +74,14 @@ export const quizRouter = {
         .returning();
       return submission[0].id;
     }),
-  getSubmission: base
+  getSubmission: os
     .input(z.object({ submissionId: z.number() }))
-    .handler(async ({ input, context }) => {
-      const session = context.session;
+    .handler(async ({ input }) => {
+      // const session = context.session;
       const submission = await db.query.submissionsTable.findFirst({
         where: and(
           eq(submissionsTable.id, input.submissionId),
-          eq(submissionsTable.user, session.user.id)
+          // eq(submissionsTable.user, session.user.id)
         ),
         with: {
           quiz: {
