@@ -6,12 +6,20 @@ import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { ORPCError } from "@orpc/client";
 import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
+
+let hasSetPages: boolean = false;
 
 export default function MePage() {
   const router = useRouter();
+  const [quizzesPagination, setQuizzesPagination] = useState<number>(0);
+  const [submissionsPagination, setSubmissionsPagination] = useState<number>(0);
+  const [quizzesPages, setQuizzesPages] = useState<number>(0);
+  const [submissionsPages, setSubmissionsPages] = useState<number>(0);
 
   const { data: session, isPending, error } = authClient.useSession();
 
@@ -50,6 +58,14 @@ export default function MePage() {
     })
   );
 
+  if (!hasSetPages && !quizzesLoading && !submissionsLoading) {
+    setSubmissionsPages(Math.ceil((submissions?.length || 0) / 4));
+    setQuizzesPages(Math.ceil((quizzes?.length || 0) / 4));
+    setSubmissionsPagination(0);
+    setQuizzesPagination(0);
+    hasSetPages = true;
+  }
+
   return (
     <div className="h-screen h-full w-screen flex overflow-y-auto">
       <div className="flex flex-col w-screen items-center p-8 pt-24 pb-10">
@@ -61,70 +77,127 @@ export default function MePage() {
               {quizzesLoading ? (
                 <Spinner variant={"ellipsis"} size={32} />
               ) : (
-                quizzes?.map((quiz) => (
-                  <Card key={quiz.id} className="flex-grow-1 py-4">
-                    <CardContent className="flex flex-col gap-2">
-                      <p>{quiz.title}</p>
-                      <p className="text-sm">{`Edited ${Intl.DateTimeFormat(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "short",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        }
-                      ).format(quiz.edited)}`}</p>
-                      <CardAction className="flex flex-row gap-4">
-                        <Button
-                          variant="neutral"
-                          onClick={() => router.push(`/quiz/${quiz.id}/edit`)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="neutral"
-                          onClick={() => router.push(`/quiz/${quiz.id}`)}
-                        >
-                          View
-                        </Button>
-                      </CardAction>
-                    </CardContent>
-                  </Card>
-                ))
+                quizzes
+                  ?.filter((quiz, idx) => {
+                    const start = quizzesPagination * 4;
+                    const end = start + 4;
+                    return idx >= start && idx < end;
+                  })
+                  .map((quiz) => (
+                    <Card key={quiz.id} className="flex-grow-1 py-4">
+                      <CardContent className="flex flex-col gap-2">
+                        <p>{quiz.title}</p>
+                        <p className="text-sm">{`Edited ${Intl.DateTimeFormat(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          }
+                        ).format(quiz.edited)}`}</p>
+                        <CardAction className="flex flex-row gap-4">
+                          <Button
+                            variant="neutral"
+                            onClick={() => router.push(`/quiz/${quiz.id}/edit`)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="neutral"
+                            onClick={() => router.push(`/quiz/${quiz.id}`)}
+                          >
+                            View
+                          </Button>
+                        </CardAction>
+                      </CardContent>
+                    </Card>
+                  ))
               )}
-              <Button className="w-fit" onClick={createQuiz}>
-                Create Quiz
-              </Button>
+
+              <div className="flex flex-row justify-between">
+                <Button className="w-fit" onClick={createQuiz}>
+                  Create Quiz
+                </Button>
+                <div className="flex flex-row gap-6 items-center">
+                  <Button
+                    disabled={quizzesPagination <= 0}
+                    variant="neutral"
+                    size="icon"
+                    onClick={() => setQuizzesPagination(quizzesPagination - 1)}
+                  >
+                    <ChevronLeft></ChevronLeft>
+                  </Button>
+                  <p>{quizzesPagination + 1}</p>
+                  <Button
+                    disabled={quizzesPagination + 1 >= quizzesPages}
+                    variant="neutral"
+                    size="icon"
+                    onClick={() => setQuizzesPagination(quizzesPagination + 1)}
+                  >
+                    <ChevronRight></ChevronRight>
+                  </Button>
+                </div>
+              </div>
               <p className="text-l">My Quiz Submissions</p>
               {submissionsLoading ? (
                 <Spinner variant={"ellipsis"} size={32} />
               ) : (
-                submissions?.map((submission) => (
-                  <Card key={submission.id} className="flex-grow-1 py-4">
-                    <CardContent className="flex flex-col gap-2">
-                      <Link
-                        href={`/results/${submission.id}`}
-                        className="underline"
-                      >
-                        {submission.quiz.title}
-                      </Link>
-                      <p className="text-sm">{`Submitted ${Intl.DateTimeFormat(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "short",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        }
-                      ).format(submission.submitted)}`}</p>
-                    </CardContent>
-                  </Card>
-                ))
+                submissions
+                  ?.filter((submission, idx) => {
+                    const start = submissionsPagination * 4;
+                    const end = start + 4;
+                    return idx >= start && idx < end;
+                  })
+                  .map((submission) => (
+                    <Card key={submission.id} className="flex-grow-1 py-4">
+                      <CardContent className="flex flex-col gap-2">
+                        <Link
+                          href={`/results/${submission.id}`}
+                          className="underline"
+                        >
+                          {submission.quiz.title}
+                        </Link>
+                        <p className="text-sm">{`Submitted ${Intl.DateTimeFormat(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          }
+                        ).format(submission.submitted)}`}</p>
+                      </CardContent>
+                    </Card>
+                  ))
               )}
+              <div className="flex flex-row justify-end gap-6 items-center">
+                <Button
+                  disabled={submissionsPagination <= 0}
+                  variant="neutral"
+                  size="icon"
+                  onClick={() =>
+                    setSubmissionsPagination(submissionsPagination - 1)
+                  }
+                >
+                  <ChevronLeft></ChevronLeft>
+                </Button>
+                <p>{submissionsPagination + 1}</p>
+                <Button
+                  disabled={submissionsPagination + 1 >= submissionsPages}
+                  variant="neutral"
+                  size="icon"
+                  onClick={() =>
+                    setSubmissionsPagination(submissionsPagination + 1)
+                  }
+                >
+                  <ChevronRight></ChevronRight>
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="flex flex-row max-w-md flex-grow-1 justify-center w-full">
