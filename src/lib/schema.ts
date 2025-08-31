@@ -39,15 +39,12 @@ export const QuizSchema = z.object({
   quizQuestions: z.array(QuizQuestionsSchema),
   quizFeatures: z.array(QuizFeaturesSchema),
   quizEventualities: z.array(QuizEventualitiesSchema),
+  user: z.string(),
+  edited: z.date(),
+  created: z.date(),
 });
 
 export type QuizType = z.infer<typeof QuizSchema>;
-
-// const FeaturesSchema = QuizFeaturesSchema.omit({
-//   quizFeatureEventualities: true,
-//   id: true,
-//   quizId: true,
-// });
 
 const QuestionsSchema = QuizQuestionsSchema.omit({
   quizId: true,
@@ -58,14 +55,29 @@ const OutcomesSchema = QuizEventualitiesSchema.omit({
 });
 
 export const QuizImpactsSchema = z.object({
-  outcomes: z.array(z.object({ affirmative: z.string(), negative: z.string() })),
+  outcomes: z.array(
+    z.object({ affirmative: z.string(), negative: z.string() })
+  ),
 });
+
+export const QuizSubmissionSchema = z.object({
+  id: z.number().int(),
+  quizId: z.number().int(),
+  answers: z.array(z.string()),
+  user: z.string(),
+  submitted: z.date(),
+  quiz: QuizSchema,
+});
+
+export type QuizSubmissionType = z.infer<typeof QuizSubmissionSchema>;
 
 export const FormSchema = QuizSchema.omit({
   id: true,
   quizFeatures: true,
   quizEventualities: true,
   quizQuestions: true,
+  edited: true,
+  created: true,
 })
   // .and(z.object({ features: z.array(FeaturesSchema) }))
   .and(z.object({ questions: z.array(QuestionsSchema) }))

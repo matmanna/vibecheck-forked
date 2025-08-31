@@ -1,11 +1,18 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export default function CreatePage() {
   const router = useRouter();
+
+  const { data: session, isPending, error } = authClient.useSession();
+
+  if (error || (!session && !isPending)) {
+    router.push("/login");
+  }
 
   async function createQuiz() {
     try {

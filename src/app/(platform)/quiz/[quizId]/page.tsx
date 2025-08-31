@@ -18,12 +18,15 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { orpc } from "@/lib/orpc";
 import { ORPCError } from "@orpc/client";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Pin, RotateCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pin } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useParams, useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 const FormSchema = z.object({
   questions: z.array(
@@ -49,26 +52,41 @@ export default function QuizPage() {
 
   const router = useRouter();
 
+  const { data: session } = authClient.useSession();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
-    console.log("on");
-    console.log(values);
-    try {
-      const submissionId = await orpc.quiz.submitResponse.call({
-        quizId: quizData?.id || 0,
-        answers: values.questions.map((q) => q.answer),
+    if (session) {
+      try {
+        const submissionId = await orpc.quiz.submitResponse.call({
+          quizId: quizData?.id || 0,
+          answers: values.questions.map((q) => q.answer),
+        });
+        router.push(`/results/${submissionId}`);
+      } catch (error) {
+        console.error("Error fetching quiz:", error);
+        toast("Error submitting quiz", {
+          description: "An error occurred submitting the quiz.",
+        });
+      }
+    } else {
+      toast("Authentication Required", {
+        description: "You must be signed in to submit a quiz.",
+        action: {
+          label: "Log In",
+          onClick: () => router.push("/login"),
+        },
       });
-      router.push(`/results/${submissionId}`);
-    } catch (error) {
-      console.error("Error fetching quiz:", error);
     }
   }
 
   const { isLoading, data: quizData } = useQuery(
     orpc.quiz.find.queryOptions({
+      staleTime: Infinity,
+      cacheTime: Infinity,
       input: { id: quizId },
       onError: (error: ORPCError<string, unknown>) => {
         console.error("Error fetching quiz:", error);
@@ -121,7 +139,7 @@ export default function QuizPage() {
           <div className="w-full flex-shrink-0 w-[100%] snap-start snap-center flex items-center justify-center p-4">
             {isLoading && (
               <div className="flex flex-row max-w-md flex-grow-1 justify-center w-full">
-                <RotateCw className="animate-spin" />
+                <Spinner variant={"ellipsis"} size={32} />
               </div>
             )}
             {!isLoading && (

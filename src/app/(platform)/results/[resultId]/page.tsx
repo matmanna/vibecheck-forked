@@ -9,7 +9,6 @@ import {
 import { orpc } from "@/lib/orpc";
 import { ORPCError } from "@orpc/client";
 import { useQuery } from "@tanstack/react-query";
-import { RotateCw } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
@@ -21,10 +20,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import ResultsTable from "@/components/ResultsTable";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 type ParamsType = {
   resultId: string;
 };
+
+let unauthed: boolean = false;
 
 export default function ResultsPage() {
   const resultId = parseInt(useParams<ParamsType>().resultId);
@@ -34,14 +36,17 @@ export default function ResultsPage() {
 
   const { isLoading, data: submissionData } = useQuery(
     orpc.quiz.getSubmission.queryOptions({
+      staleTime: Infinity,
+      cacheTime: Infinity,
       input: { submissionId: resultId },
       onError: (error: ORPCError<string, unknown>) => {
         console.error("Error fetching quiz:", error);
+        unauthed = true;
       },
     })
   );
 
-  if (!isLoading && winningEventualities.length == 0 && submissionData) {
+  if (!isLoading && !unauthed && winningEventualities.length == 0 && submissionData) {
     let maxPoints = submissionData.results[0];
     for (let i = 0; i < submissionData.results.length; i++) {
       if (submissionData.results[i] > maxPoints) {
@@ -58,13 +63,14 @@ export default function ResultsPage() {
     <div className="h-screen h-full w-screen flex overflow-y-auto">
       <div className="flex flex-col w-screen items-center p-8 pt-24 pb-10">
         <div className="flex flex-col gap-4 max-w-md">
-          {isLoading && <RotateCw className="animate-spin self-center" />}
-          {(!isLoading && submissionData) && (
+          {isLoading && <div className="self-center"><Spinner variant={"ellipsis"} size={32} /></div>}
+          {(!isLoading && unauthed) && <p className="self-center">Could not find quiz</p>}
+          {(!isLoading && !unauthed && submissionData) && (
             <>
               <p>
                 Quiz:{" "}
                 <Link
-                  className="italic underline active-link"
+                  className="underline active-link"
                   href={`/quiz/${submissionData?.quiz.id}`}
                 >
                   {submissionData?.quiz.title}
