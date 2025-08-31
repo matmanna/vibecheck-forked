@@ -63,7 +63,6 @@ export const quizRouter = {
     .input(z.object({ quizId: z.number(), answers: z.array(z.string()) }))
     .handler(async ({ input, context }) => {
       const session = context.session;
-
       const submission = await db
         .insert(submissionsTable)
         .values({
@@ -80,7 +79,7 @@ export const quizRouter = {
       // const session = context.session;
       const submission = await db.query.submissionsTable.findFirst({
         where: and(
-          eq(submissionsTable.id, input.submissionId),
+          eq(submissionsTable.id, input.submissionId)
           // eq(submissionsTable.user, session.user.id)
         ),
         with: {
@@ -97,7 +96,6 @@ export const quizRouter = {
           },
         },
       });
-
       if (submission) {
         const newSubmission = calcSubmissionResults(submission);
         return newSubmission;
@@ -134,7 +132,6 @@ export const quizRouter = {
       return [];
     }
   }),
-
   createBlank: base.handler(async () => {
     try {
       const session = await auth.api.getSession({

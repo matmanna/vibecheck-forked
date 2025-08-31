@@ -40,6 +40,8 @@ export const QuizSchema = z.object({
   quizFeatures: z.array(QuizFeaturesSchema),
   quizEventualities: z.array(QuizEventualitiesSchema),
   user: z.string(),
+  edited: z.date(),
+  created: z.date(),
 });
 
 export type QuizType = z.infer<typeof QuizSchema>;
@@ -63,6 +65,7 @@ export const QuizSubmissionSchema = z.object({
   quizId: z.number().int(),
   answers: z.array(z.string()),
   user: z.string(),
+  submitted: z.date(),
   quiz: QuizSchema,
 });
 
@@ -73,6 +76,8 @@ export const FormSchema = QuizSchema.omit({
   quizFeatures: true,
   quizEventualities: true,
   quizQuestions: true,
+  edited: true,
+  created: true,
 })
   // .and(z.object({ features: z.array(FeaturesSchema) }))
   .and(z.object({ questions: z.array(QuestionsSchema) }))

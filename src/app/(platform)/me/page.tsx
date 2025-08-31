@@ -65,7 +65,17 @@ export default function MePage() {
                   <Card key={quiz.id} className="flex-grow-1 py-4">
                     <CardContent className="flex flex-col gap-2">
                       <p>{quiz.title}</p>
-                      <p className="text-sm">Edited</p>
+                      <p className="text-sm">{`Edited ${Intl.DateTimeFormat(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "short",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                        }
+                      ).format(quiz.edited)}`}</p>
                       <CardAction className="flex flex-row gap-4">
                         <Button
                           variant="neutral"
@@ -100,7 +110,17 @@ export default function MePage() {
                       >
                         {submission.quiz.title}
                       </Link>
-                      <p className="text-sm">Submitted</p>
+                      <p className="text-sm">{`Submitted ${Intl.DateTimeFormat(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "short",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                        }
+                      ).format(submission.submitted)}`}</p>
                     </CardContent>
                   </Card>
                 ))

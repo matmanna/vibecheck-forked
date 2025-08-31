@@ -71,7 +71,7 @@ export default function ResultsTable({
               <TableCell className="font-medium text-center">{item.featureName}</TableCell>
               <TableCell className="font-medium text-center">
                 {answers[idx] == "neutral"
-                  ? "-"
+                  ? "Neutral"
                   : answers[idx][0].toUpperCase()}
               </TableCell>
               {tableData.questions[idx].points.map((item2, idx2) => (

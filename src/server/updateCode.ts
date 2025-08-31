@@ -49,8 +49,15 @@ export async function update(
             .set({
               title: input.formData.title,
               description: input.formData.description,
+              created: origQuiz.created,
+              edited: new Date(),
             })
-            .where(and(eq(quizzesTable.id, input.quizId), eq(quizzesTable.user, session.id)))
+            .where(
+              and(
+                eq(quizzesTable.id, input.quizId),
+                eq(quizzesTable.user, session.id)
+              )
+            )
             .returning();
         }
         // eventaulities

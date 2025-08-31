@@ -66,6 +66,8 @@ export const quizzesTable = pgTable("quizzes", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   title: varchar({ length: 255 }).notNull(),
   description: varchar({ length: 255 }).notNull(),
+  edited: timestamp("edited", { withTimezone: true }).defaultNow().notNull(),
+  created: timestamp("created", { withTimezone: true }).defaultNow().notNull(),
   user: text()
     .notNull()
     .references(() => user.id),
@@ -123,6 +125,7 @@ export const submissionsTable = pgTable("submissions", {
     .notNull()
     .references(() => quizzesTable.id),
   answers: varchar({ length: 255 }).array().notNull(),
+  submitted: timestamp("submitted", { withTimezone: true }).defaultNow().notNull(),
   user: text()
     .notNull()
     .references(() => user.id),
