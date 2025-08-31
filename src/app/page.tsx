@@ -7,12 +7,6 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push("/quiz/1");
+    router.push("/me");
   });
-
-  // return (
-  //   <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-  //     <Button>Start</Button>
-  //   </div>
-  // );
 }
