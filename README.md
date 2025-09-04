@@ -8,7 +8,6 @@ Current features:
 - Take a quiz and receive ranked results
 
 To do:
-- Auth
 - Share results
 - Different types of questions
 - UUID ids instead of incrementing numbers
