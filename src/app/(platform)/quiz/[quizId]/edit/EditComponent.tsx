@@ -10,12 +10,7 @@ import {
 import { FormSchema, QuizImpactsSchema } from "@/lib/schema";
 import { Input } from "@/components/ui/input";
 import z from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
@@ -182,7 +177,7 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
                                 > = [];
                                 if (watchedImpacts[i].outcomes.length > 0) {
                                   newList = watchedImpacts[i].outcomes.filter(
-                                    (item3, idx3) => idx3 != idx
+                                    (item3, idx3) => idx3 != idx,
                                   );
                                 }
                                 updateImpacts(i, {
@@ -252,7 +247,10 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input {...field} placeholder="Question Topic: 1-2 words to summarize the question..." />
+                          <Input
+                            {...field}
+                            placeholder="Question Topic: 1-2 words to summarize the question..."
+                          />
                         </FormControl>
                       </FormItem>
                     )}
@@ -275,7 +273,7 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
                               <TableCell className="font-medium text-center min-w-full w-[125px] break-all inline-block whitespace-normal align-middle">
                                 {item2.name}
                               </TableCell>
-                              <TableCell className="font-medium text-center">
+                              <TableCell className="font-medium text-center min-w-[75px]">
                                 <FormField
                                   control={form.control}
                                   name={`questionImpacts.${idx}.outcomes.${idx2}.affirmative`}
@@ -292,7 +290,7 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
                                   )}
                                 />
                               </TableCell>
-                              <TableCell className="font-medium text-center">
+                              <TableCell className="font-medium text-center min-w-[75px]">
                                 <FormField
                                   control={form.control}
                                   name={`questionImpacts.${idx}.outcomes.${idx2}.negative`}

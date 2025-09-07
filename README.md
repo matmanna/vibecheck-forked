@@ -1,15 +1,27 @@
-A simple personality-quiz like platform. Users can create their own quizzes and share with friends!
+# vibecheck
 
-Localhost: http://localhost:3000
+✨ A powerful yet straightforward personality quiz creation and sharing platform. With an intuitive quiz design editor and platform, anyone can create their very own dynamic quiz with automatic result-calculations and respondant categorization. Then, share your "vibe check" with friends (or frenemies), sit back, and watch as the results come rolling in!
 
-Current features:
+## Features
+
+- Register an account and log in (w/ email & password)
 - Create a quiz
-- Edit & update a quiz
-- Take a quiz and receive ranked results
+- View, edit, and delete a quiz with a visual builder
+- Take a quiz and receive personalized and ranked results
 
-To do:
-- Share results
-- Different types of questions
-- UUID ids instead of incrementing numbers
-- Quiz input validation
+## Development
+
+```bash
+pnpm dev
+```
+
+Now your very own vibecheck development instance is running on localhost!
+
+# TODOs:
+
+- Integrated result-sharing mechanism
+- Different "types" of questions
+- UUID ids instead of serial ids
+- Better quiz input validation
+- Enhanced profile page with quiz result-based badges?
 - Tier lists?

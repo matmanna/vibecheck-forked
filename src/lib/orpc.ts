@@ -5,7 +5,7 @@ import { router } from '@/server/api/orpc'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 
 const link = new RPCLink({
-  url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/rpc`,
+  url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api`,
   headers: async () => {
     if (typeof window !== 'undefined') {
       return {}
