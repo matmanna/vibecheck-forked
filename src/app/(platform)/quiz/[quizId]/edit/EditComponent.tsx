@@ -10,12 +10,7 @@ import {
 import { FormSchema, QuizImpactsSchema } from "@/lib/schema";
 import { Input } from "@/components/ui/input";
 import z from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
@@ -252,7 +247,10 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input {...field} placeholder="Question Topic: 1-2 words to summarize the question..." />
+                          <Input
+                            {...field}
+                            placeholder="Question Topic: 1-2 words to summarize the question..."
+                          />
                         </FormControl>
                       </FormItem>
                     )}
@@ -369,7 +367,14 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
               variant="neutral"
               className="w-fit"
               onClick={() =>
-                window.open(`http://localhost:3000/quiz/${quizId}`, "_blank")
+                window.open(
+                  `${
+                    typeof window !== "undefined"
+                      ? window.location.origin
+                      : "http://localhost:3000"
+                  }/quiz/${quizId}`,
+                  "_blank"
+                )
               }
             >
               Open Published Quiz
