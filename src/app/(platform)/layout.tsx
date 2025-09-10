@@ -11,6 +11,10 @@ import {
 } from "@/components/ui/navigation-menu";
 import Image from "next/image";
 
+import { GithubIcon } from "lucide-react";
+
+import { ThemeSwitcher } from "@/components/theme-switcher";
+
 const queryClient = new QueryClient();
 
 export default function PlatformLayout({
@@ -21,33 +25,50 @@ export default function PlatformLayout({
   return (
     <div className="min-h-screen flex-col flex items-center gap-8 w-full">
       <div className="absolute top-0 block px-5 items-center flex flex-col">
-        <NavigationMenu className="py-2 z-5 mt-5 block">
-          <NavigationMenuList className="px-4! flex items-center justify-between">
+        <NavigationMenu className="z-5 mt-5 block text-main-foreground">
+          <NavigationMenuList className="px-4! flex items-center justify-between gap-6">
             <NavigationMenuItem className="items-center flex flex-row w-full w-fit">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={100}
-                height={20}
-                className="mx-auto"
-              />
+              <Link href="/" className="sr-only">
+                Vibecheck Home
+              </Link>
+              <Link href="/">
+                <Image
+                  src="/logo.svg"
+                  alt="Vibecheck Logo with Sparkles"
+                  width={144}
+                  height={22}
+                  className="mx-auto"
+                />
+              </Link>
             </NavigationMenuItem>
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-row py-2 items-center gap-2 underline-offset-4">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href="/me">home</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem className="sm:block hidden">
                 <NavigationMenuLink asChild>
-                  <Link href="https://ui.shadcn.com/docs">About</Link>
+                  <Link href="https://github.com/awesomeosep/vibecheck/wiki">
+                    docs
+                  </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/settings">Settings</Link>
+                  <Link href="/settings">settings</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+            </div>
+            <div className="flex flex-row gap-1 items-center">
+              <ThemeSwitcher />
+              <Link
+                asChild
+                href="https://github.com/awesomeosep/vibecheck"
+                className="p-2 "
+              >
+                <GithubIcon className="w-6 h-6" />
+              </Link>
             </div>
           </NavigationMenuList>
         </NavigationMenu>

@@ -3,6 +3,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/**@config "./tailwind.config.cjs";**/
+
 :root {
   --background: oklch(93.37% 0.0339 12.05);
   --secondary-background: oklch(100% 0 0);
