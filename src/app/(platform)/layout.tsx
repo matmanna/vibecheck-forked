@@ -63,7 +63,6 @@ export default function PlatformLayout({
             <div className="flex flex-row gap-1 items-center">
               <ThemeSwitcher />
               <Link
-                asChild
                 href="https://github.com/awesomeosep/vibecheck"
                 className="p-2 "
               >

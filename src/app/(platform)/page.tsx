@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import Link from "next/link";
 
 import { BookOpen, LogIn } from "lucide-react";
