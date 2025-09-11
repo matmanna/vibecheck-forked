@@ -1,6 +1,6 @@
 # vibecheck
 
-✨ A powerful yet straightforward personality quiz creation and sharing platform. With an intuitive quiz design editor and platform, anyone can create their very own dynamic quiz with automatic result-calculations and respondant categorization. Then, share your "vibe check" with friends (or frenemies), sit back, and watch as the results come rolling in!
+✨ A powerful yet straightforward personality quiz creation and sharing platform. With an intuitive quiz design editor and platform, anyone can create their very own dynamic quiz with automatic result calculations and respondent categorization. Then, share your "vibe check" with friends, sit back, and watch as the results come rolling in!
 
 ## Features
 
