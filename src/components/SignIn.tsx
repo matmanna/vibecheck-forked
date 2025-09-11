@@ -98,7 +98,7 @@ export default function SignIn({ toggle }: { toggle: () => void }) {
             )}
           </Button>
 
-          <div
+          {/* <div
             className={cn(
               "w-full gap-2 flex items-center",
               "justify-between flex-col"
@@ -150,7 +150,7 @@ export default function SignIn({ toggle }: { toggle: () => void }) {
               </svg>
               Sign in with Google
             </Button>
-          </div>
+          </div> */}
           <Link
             href="#"
             onClick={toggle}
