@@ -1,5 +1,7 @@
 # vibecheck
 
+[![Athena Award Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Faward.athena.hackclub.com%2Fapi%2Fbadge)](https://award.athena.hackclub.com?utm_source=readme)
+
 ✨ A powerful yet straightforward personality quiz creation and sharing platform. With an intuitive quiz design editor and platform, anyone can create their very own dynamic quiz with automatic result calculations and respondent categorization. Then, share your "vibe check" with friends, sit back, and watch as the results come rolling in!
 
 ## Features
