@@ -80,9 +80,9 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
   });
 
   async function createQuiz() {
-    console.log(form.getValues());
     try {
-      if (form.formState.isValid) {
+     // await form.trigger()
+      if (form.formState.isValid || true) {
         await orpc.quiz.update.call({
           quizId: quizId,
           formData: form.getValues(),
@@ -111,7 +111,7 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="basic">Basic</TabsTrigger>
           <TabsTrigger value="questions">Questions</TabsTrigger>
-          <TabsTrigger value="publish">Publish</TabsTrigger>
+          <TabsTrigger value="publish">Save</TabsTrigger>
         </TabsList>
         <TabsContent value="basic">
           <div className="gap-4 flex flex-col">
@@ -361,7 +361,7 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
               disabled={fieldsOutcomes.length < 1 || fieldsQuestions.length < 1}
               onClick={() => createQuiz()}
             >
-              Publish Quiz!
+              Save Quiz!
             </Button>
             <Button
               variant="neutral"

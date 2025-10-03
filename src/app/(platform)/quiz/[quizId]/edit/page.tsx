@@ -2,6 +2,7 @@
 import { orpc } from "@/lib/orpc";
 import { useQuery } from "@tanstack/react-query";
 import EditComponent from "./EditComponent";
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert"
 import { ORPCError } from "@orpc/client";
 import z from "zod";
 import { FormSchema } from "@/lib/schema";
@@ -9,6 +10,8 @@ import { useParams } from "next/navigation";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
+import Link from "next/link"
+import { CheckCircle2Icon } from "lucide-react"
 
 let sendData: z.infer<typeof FormSchema> | null = null;
 
@@ -98,10 +101,21 @@ export default function EditPage() {
               <Spinner variant={"ellipsis"} size={32} />
             </div>
           ) : !unauthed ? (
+            <>
+            
+            {quizData?.edited.getTime() !== quizData?.created.getTime() ?
+               <Alert>
+      <CheckCircle2Icon />
+      <AlertTitle>Your quiz has been saved</AlertTitle>
+      <AlertDescription className="flex flex-row flex-wrap gap-1">
+        Preview your quiz <Link className="underline text-primary-500" href={`/quiz/${quizData?.id}`}>here</Link>.
+      </AlertDescription>
+    </Alert> : null}
             <EditComponent
               quizId={quizId}
               prefillData={sendData!}
             ></EditComponent>
+            </>
           ) : (
             <div className="self-center">
               <p>Could not find quiz</p>

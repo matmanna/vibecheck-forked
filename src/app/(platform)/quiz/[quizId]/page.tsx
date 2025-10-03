@@ -147,11 +147,11 @@ export default function QuizPage() {
                 <CardHeader>
                   <div className="flex flex-row items-center gap-2">
                     <Pin className="w-5 h-5" />
-                    <CardTitle>{quizData?.title}</CardTitle>
+                    <CardTitle>{quizData?.title ?? "Untitled quiz"}</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p>{quizData?.description}</p>
+                  <p>{quizData?.description ?? "No description provided"}</p>
                   <div className="flex flex-row items-center justify-end mt-4">
                     <Button
                       onClick={() => {
