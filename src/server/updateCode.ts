@@ -40,10 +40,10 @@ export async function update(
         input.formData.questions.length > 0
       ) {
         // basic quiz data
-        if (
-          input.formData.title != origQuiz.title ||
-          input.formData.description != origQuiz?.description
-        ) {
+        // if (
+        //   input.formData.title != origQuiz.title ||
+        //   input.formData.description != origQuiz?.description
+        // ) {
           await db
             .update(quizzesTable)
             .set({
@@ -59,7 +59,7 @@ export async function update(
               )
             )
             .returning();
-        }
+        //}
         // eventaulities
         const newEventualities = input.formData.eventualities.map((item) => {
           return {

@@ -85,6 +85,7 @@ export default function EditComponent({ prefillData, quizId }: ParamsType) {
       if (form.formState.isValid || true) {
         await orpc.quiz.update.call({
           quizId: quizId,
+          
           formData: form.getValues(),
         });
         window.location.reload();
